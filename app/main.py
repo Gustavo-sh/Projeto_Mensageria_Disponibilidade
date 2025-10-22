@@ -22,14 +22,13 @@ def mensagem_semanas_2_3_4(db):
     texto = None
     tipo = None
     evoluiu_porcentagem = None
-    if db["resultado_m0_disponibilidade"] == None:
+    if db["resultado_m0_disponibilidade"] == "Sem dados":
         mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Atual."})
         return 
-    elif db["resultado_m1_disponibilidade"] == None and db["resultado_m2_disponibilidade"] == None:
+    elif db["resultado_m1_disponibilidade"] == "Sem dados" and db["resultado_m2_disponibilidade"] == "Sem dados":
         mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior e dois Meses Atras."})
         return 
-    elif db["resultado_m1_disponibilidade"] == None:
-        
+    elif db["resultado_m1_disponibilidade"] == "Sem dados":
         evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m2_disponibilidade"].replace("%", ""))
     else:
         evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m1_disponibilidade"].replace("%", ""))
@@ -68,14 +67,13 @@ def mensagem_semana_5(db):
     tipo = None
     evoluiu_grupo = float(db["resultado_m0_disponibilidade"].replace("%", "")) >= float(84.6)
     evoluiu_porcentagem = None
-    if db["resultado_m0_disponibilidade"] == None:
+    if db["resultado_m0_disponibilidade"] == "Sem dados":
         mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Atual."})
         return 
-    elif db["resultado_m1_disponibilidade"] == None and db["resultado_m2_disponibilidade"] == None:
+    elif db["resultado_m1_disponibilidade"] == "Sem dados" and db["resultado_m2_disponibilidade"] == "Sem dados":
         mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior e dois Meses Atras."})
         return 
-    elif db["resultado_m1_disponibilidade"] == None:
-        
+    elif db["resultado_m1_disponibilidade"] == "Sem dados":
         evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m2_disponibilidade"].replace("%", ""))
     else:
         evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m1_disponibilidade"].replace("%", ""))
@@ -124,6 +122,10 @@ def main():
               "resultado_tempo_logado": dados["Resultado_Tempo_Logado"], "meta_tempo_logado": dados["Meta_Tempo_Logado"], "resultado_nr17": dados["Resultado_NR17"], "meta_nr17": dados["Meta_NR17"], 
               "resultado_abs": dados["Resultado_ABS"], "meta_abs": dados["Meta_ABS"], "semana": 5}
         
+        for chave, valor in db.items():
+            if valor == None:
+                db[chave] = "Sem dados"
+
         if db["semana"] == 1:
             mensagem_semana_1(db)
         elif db["semana"] == 2 or db["semana"] == 3 or db["semana"] == 4:
