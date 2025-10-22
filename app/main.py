@@ -1,9 +1,19 @@
-import datetime
-import os
 from conexoes_bd import get_resultados
 import pandas as pd
+from pathlib import Path
 
-mensagens = []
+def checar_dados_disponibilidade(db):
+    if db["resultado_m0_disponibilidade"] == "Sem dados":
+        return {"Matricula": db["matricula"], "tipo": "Sem dados", "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Atual."}
+    elif db["resultado_m1_disponibilidade"] == "Sem dados" and db["resultado_m2_disponibilidade"] == "Sem dados":
+        return {"Matricula": db["matricula"], "tipo": "Sem dados", "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior e dois Meses Atras."}
+    return None
+
+def to_float_percent(valor):
+    try:
+        return float(str(valor).replace("%", "").strip())
+    except (TypeError, ValueError):
+        return 0.0
 
 def mensagem_semana_1(db):
     texto =  f"""
@@ -16,22 +26,19 @@ def mensagem_semana_1(db):
                 Toda semana você receberá dicas e informativos de sua evolução via Robbyson. 
                 Aproveite esse conteúdo e, sempre que precisar, procure seu supervisor — ele está à disposição para te apoiar nesse processo.
             """
-    mensagens.append({"Matricula": db["matricula"], "tipo": "abertura", "semana":db["semana"], "Mensagem": texto})
+    return {"Matricula": db["matricula"], "tipo": "abertura", "semana":db["semana"], "Mensagem": texto}
 
 def mensagem_semanas_2_3_4(db):
     texto = None
     tipo = None
     evoluiu_porcentagem = None
-    if db["resultado_m0_disponibilidade"] == "Sem dados":
-        mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Atual."})
-        return 
-    elif db["resultado_m1_disponibilidade"] == "Sem dados" and db["resultado_m2_disponibilidade"] == "Sem dados":
-        mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior e dois Meses Atras."})
-        return 
-    elif db["resultado_m1_disponibilidade"] == "Sem dados":
-        evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m2_disponibilidade"].replace("%", ""))
+    checar_dados = checar_dados_disponibilidade(db)
+    if checar_dados is not None:
+        return checar_dados
+    if db["resultado_m1_disponibilidade"] == "Sem dados":
+        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
     else:
-        evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m1_disponibilidade"].replace("%", ""))
+        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"])
     if evoluiu_porcentagem:
         texto = f"""
         Olá, {db["matricula"]}!
@@ -60,23 +67,20 @@ def mensagem_semanas_2_3_4(db):
         Em caso de dúvidas ou se precisar de apoio, procure seu supervisor. Estamos aqui para te ajudar nesse processo de evolução! 
                 """
         tipo = "involucao"
-    mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": texto})
+    return {"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": texto}
 
 def mensagem_semana_5(db):
     texto = None
     tipo = None
-    evoluiu_grupo = float(db["resultado_m0_disponibilidade"].replace("%", "")) >= float(84.6)
+    evoluiu_grupo = float(db["resultado_m0_disponibilidade"].replace("%", "")) >= 84.6
     evoluiu_porcentagem = None
-    if db["resultado_m0_disponibilidade"] == "Sem dados":
-        mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Atual."})
-        return 
-    elif db["resultado_m1_disponibilidade"] == "Sem dados" and db["resultado_m2_disponibilidade"] == "Sem dados":
-        mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior e dois Meses Atras."})
-        return 
-    elif db["resultado_m1_disponibilidade"] == "Sem dados":
-        evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m2_disponibilidade"].replace("%", ""))
+    checar_dados = checar_dados_disponibilidade(db)
+    if checar_dados is not None:
+        return checar_dados
+    if db["resultado_m1_disponibilidade"] == "Sem dados":
+        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
     else:
-        evoluiu_porcentagem = float(db["resultado_m0_disponibilidade"].replace("%", "")) > float(db["resultado_m1_disponibilidade"].replace("%", ""))
+        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"])
 
     if evoluiu_grupo and evoluiu_porcentagem:
         texto = f"""
@@ -111,10 +115,11 @@ def mensagem_semana_5(db):
         Contamos com o seu comprometimento para transformar esse resultado no próximo mês. Estamos juntos nesse propósito! 
         """
         tipo = "involucao"
-    mensagens.append({"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": texto})
+    return {"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": texto}
 
 def main():
     resultados = get_resultados()
+    mensagens = []
     for matricula, dados in resultados.items():
 
         db = {"matricula": matricula, "resultado_m0_disponibilidade": dados["Resultado_M0_Disp"], "resultado_m1_disponibilidade": dados["Resultado_M1_Disp"], 
@@ -127,15 +132,20 @@ def main():
                 db[chave] = "Sem dados"
 
         if db["semana"] == 1:
-            mensagem_semana_1(db)
+            mensagens.append(mensagem_semana_1(db))
         elif db["semana"] == 2 or db["semana"] == 3 or db["semana"] == 4:
-            mensagem_semanas_2_3_4(db)
+            mensagens.append(mensagem_semanas_2_3_4(db))
         elif db["semana"] == 5:
-            mensagem_semana_5(db)
-        
+            mensagens.append(mensagem_semana_5(db))
+
+    if not mensagens:
+        print("⚠️ Nenhuma mensagem gerada — verifique os dados.")
+        return
     df_mensagens = pd.DataFrame(mensagens)
-    caminho_arquivo = os.path.join(os.getcwd(), "mensagens_geradas.xlsx")
+    caminho_arquivo = Path.cwd() / "mensagens_geradas.xlsx"
     df_mensagens.to_excel(caminho_arquivo, index=False)
+    print(f"✅ {len(mensagens)} mensagens geradas.")
+    print(f"📄 Arquivo salvo em: {caminho_arquivo}")
 
 if __name__ == "__main__":
     main()
