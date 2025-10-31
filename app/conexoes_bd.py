@@ -13,7 +13,7 @@ SCRIPT = f"""
         FORMAT(DATEADD(second, meta_nr17, '00:00:00'), 'HH:mm:ss') as meta_nr17, 
         FORMAT(resultado_abs, 'P') as Resultado_ABS, 
         FORMAT(meta_abs, 'P') as Meta_ABS,
-        semana
+        semana, nome
         from rlt.MensageriaDisponibilidade
     """
 
@@ -35,7 +35,8 @@ def get_resultados():
             "Meta_NR17": i[9],
             "Resultado_ABS": i[10],
             "Meta_ABS": i[11],
-            "Semana": i[12]
+            "Semana": i[12],
+            "Nome": i[13]
         }
     for i in rows} 
 
