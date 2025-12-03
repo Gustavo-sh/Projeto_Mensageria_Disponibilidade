@@ -15,6 +15,7 @@ SCRIPT = f"""
         FORMAT(meta_abs, 'P') as Meta_ABS,
         semana, nome
         from rlt.MensageriaDisponibilidade
+        where terminado = 0
     """
 
 def get_resultados():
