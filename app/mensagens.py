@@ -61,7 +61,12 @@ def mensagem_semanas_2_3_4(db):
 def mensagem_semana_5(db):
     texto = None
     tipo = None
-    evoluiu_grupo = float(db["resultado_m0_disponibilidade"].replace("%", "")) >= 84.6 if db["resultado_m0_disponibilidade"] != "Sem dados" else False
+    evoluiu_grupo = False
+    if db["resultado_m0_disponibilidade"] != "Sem dados":
+        if db["grupo"] == 3 and float(db["resultado_m0_disponibilidade"].replace("%", "")) >= 94:
+            evoluiu_grupo = True
+        else:
+            evoluiu_grupo = True if float(db["resultado_m0_disponibilidade"].replace("%", "")) >= 84.6 else False
     evoluiu_porcentagem = None
     checar_dados = checar_dados_disponibilidade(db)
     if checar_dados is not None:
