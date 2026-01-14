@@ -149,7 +149,8 @@ QUERY_FINAL = """
             ON d.chave_externa = h.matricula
         LEFT JOIN #base b
             ON d.chave_externa = b.matricula
-        WHERE h.situacaohominum = 'ativo';
+        WHERE h.situacaohominum = 'ativo'
+        AND c.FAIXA IN (3,4);
 
     """
 
