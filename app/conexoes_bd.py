@@ -1,7 +1,8 @@
 import pyodbc
 CONNECTION_STRING = "Driver={SQL Server};Server=primno4;Database=Robbyson;Trusted_Connection=yes;"
 UPDATE_SEMANA = """
-    UPDATE dbo.historico_rn SET semana = semana + 1;
+    UPDATE dbo.historico_rn SET semana = semana + 1
+    WHERE terminado = 0;
     """
 INTOS = """
         set nocount on;
@@ -166,11 +167,12 @@ DROPS = """
 def get_resultados():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    #cur.execute(UPDATE_SEMANA)
+    cur.execute(UPDATE_SEMANA)
     cur.execute(INTOS)
     cur.execute(QUERY_FINAL)
     rows = cur.fetchall()
     cur.execute(DROPS)
+    cur.commit()
     resultados = {
         i[0]: {
             "Resultado_M0_Disp": i[1],
