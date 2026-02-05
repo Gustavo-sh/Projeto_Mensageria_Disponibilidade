@@ -145,7 +145,7 @@ QUERY_FINAL = """
         LEFT JOIN bas.relatorio3 c
             ON d.chave_externa = c.matricula
             AND c.indicador = 901
-            AND c.mes = EOMONTH(GETDATE(), -1)
+            AND c.mes = EOMONTH(GETDATE(), -2)
         LEFT JOIN #hmn h
             ON d.chave_externa = h.matricula
         LEFT JOIN #base b
@@ -167,7 +167,7 @@ DROPS = """
 def get_resultados():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    cur.execute(UPDATE_SEMANA)
+    #cur.execute(UPDATE_SEMANA)
     cur.execute(INTOS)
     cur.execute(QUERY_FINAL)
     rows = cur.fetchall()

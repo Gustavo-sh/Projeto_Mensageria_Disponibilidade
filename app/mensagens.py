@@ -60,19 +60,17 @@ def mensagem_semana_5(db):
     texto = None
     tipo = None
     evoluiu_grupo = False
-    if db["resultado_m0_disponibilidade"] != "Sem dados":
-        if db["grupo"] == 3 and float(db["resultado_m0_disponibilidade"].replace("%", "")) >= 94:
-            evoluiu_grupo = True
-        else:
-            evoluiu_grupo = True if float(db["resultado_m0_disponibilidade"].replace("%", "")) >= 84.6 else False
     evoluiu_porcentagem = None
-    checar_dados = checar_dados_disponibilidade(db)
-    if checar_dados is not None:
-        return checar_dados
-    if db["resultado_m1_disponibilidade"] == "Sem dados":
-        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"]) if db["resultado_m0_disponibilidade"] != "Sem dados" else False
+
+    if db["resultado_m1_disponibilidade"] == "Sem dados" or db["resultado_m2_disponibilidade"] == "Sem dados":
+        return {"Matricula": db["matricula"], "tipo": "Sem dados", "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior ou Dois Meses Atras."}
+    
+    if db["grupo"] == 3 and float(db["resultado_m1_disponibilidade"].replace("%", "")) >= 94:
+        evoluiu_grupo = True
     else:
-        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"]) if db["resultado_m0_disponibilidade"] != "Sem dados" else False
+        evoluiu_grupo = True if float(db["resultado_m1_disponibilidade"].replace("%", "")) >= 84.6 else False
+    
+    evoluiu_porcentagem = to_float_percent(db["resultado_m1_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
 
     if evoluiu_grupo and evoluiu_porcentagem:
         texto = f"""
