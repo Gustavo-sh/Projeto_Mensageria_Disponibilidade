@@ -2,18 +2,19 @@ from utils import to_float_percent, checar_dados_disponibilidade
 
 def mensagem_semana_1(db):
     texto =  f"""
-                Olá,  {db["nome"].split(" ")[0]}! 😊
-                Eu sou o Robby e tô passando pra dar uma noticia super legal! Você está participando do Robby ON na Disponibilidade, criado para apoiar sua evolução no indicador de % de Disponibilidade.
-                No último mês, seu resultado foi {db["resultado_m1_disponibilidade"]}, e nos últimos períodos ele apareceu entre G3 e G4.
-                A partir de agora, vamos trabalhar juntos para melhorar isso com constância 💪
+                Olá, {db["nome"].split(" ")[0]}! 😊 Eu sou o Robby e tô passando pra dar uma noticia super legal! Você está participando do Robby ON na Disponibilidade, criado para apoiar sua evolução no indicador de % de Disponibilidade.
+                No último mês, seu resultado foi {db["resultado_m1_disponibilidade"]}, e nos últimos períodos ele apareceu entre G3 e G4. A partir de agora, vamos trabalhar juntos para melhorar isso com constância 💪
                 Toda semana eu vou te enviar aqui na Robbyson dicas rápidas + um resumo da sua evolução.
+                Já confere os pilares da sua disponibilidade:
+                Tempo logado — Meta: {db["meta_tempo_logado"]} | Atual: {db["resultado_tempo_logado"]}
+                Pausa NR17 — Meta: {db["meta_nr17"]} | Atual: {db["resultado_nr17"]}
+                ABS — Meta: {db["meta_abs"]} | Atual: {db["resultado_abs"]}
                 E sempre que precisar, chama seu supervisor: ele é seu parceiro nesse processo🤝
-                Conta comigo,
-                Robby
+                Conta comigo, Robby
             """
     return {"Matricula": db["matricula"], "tipo": "abertura", "semana":db["semana"], "Mensagem": texto}
 
-def mensagem_semanas_2_3_4(db):
+def mensagem_semanas_2_3(db):
     texto = None
     tipo = None
     evoluiu_porcentagem = None
@@ -56,7 +57,7 @@ def mensagem_semanas_2_3_4(db):
         tipo = "involucao"
     return {"Matricula": db["matricula"], "tipo": tipo, "semana":db["semana"], "Mensagem": texto}
 
-def mensagem_semana_5(db):
+def mensagem_semana_4(db):
     texto = None
     tipo = None
     evoluiu_grupo = False
@@ -65,10 +66,7 @@ def mensagem_semana_5(db):
     if db["resultado_m1_disponibilidade"] == "Sem dados" or db["resultado_m2_disponibilidade"] == "Sem dados":
         return {"Matricula": db["matricula"], "tipo": "Sem dados", "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior ou Dois Meses Atras."}
     
-    if db["grupo"] == 3 and float(db["resultado_m1_disponibilidade"].replace("%", "")) >= 94:
-        evoluiu_grupo = True
-    else:
-        evoluiu_grupo = True if float(db["resultado_m1_disponibilidade"].replace("%", "")) >= 84.6 else False
+    evoluiu_grupo = True if to_float_percent(db["resultado_m1_disponibilidade"]) >= 94.0 else False
     
     evoluiu_porcentagem = to_float_percent(db["resultado_m1_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
 

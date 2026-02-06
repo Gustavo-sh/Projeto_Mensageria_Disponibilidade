@@ -167,7 +167,7 @@ DROPS = """
 def get_resultados():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    #cur.execute(UPDATE_SEMANA)
+    cur.execute(UPDATE_SEMANA)
     cur.execute(INTOS)
     cur.execute(QUERY_FINAL)
     rows = cur.fetchall()
@@ -194,3 +194,20 @@ def get_resultados():
     cur.close()
     conn.close()
     return resultados
+
+def get_semana():
+    conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
+    cur = conn.cursor()
+    cur.execute("""select distinct semana from dbo.historico_rn (nolock) where terminado = 0;""")
+    rows = cur.fetchone()
+    cur.close()
+    conn.close()
+    return rows
+
+def update_terminado():
+    conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
+    cur = conn.cursor()
+    cur.execute("""update dbo.historico_rn set terminado = 1 where terminado = 0;""")
+    cur.commit()
+    cur.close()
+    conn.close()

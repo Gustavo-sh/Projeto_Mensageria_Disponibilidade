@@ -1,10 +1,21 @@
-from conexoes_bd import get_resultados
-from mensagens import mensagem_semana_1, mensagem_semanas_2_3_4, mensagem_semana_5
+from conexoes_bd import get_resultados, get_semana, update_terminado
+from mensagens import mensagem_semana_1, mensagem_semanas_2_3, mensagem_semana_4
 from pathlib import Path
 import pandas as pd
 
 def main():
     resultados = get_resultados()
+    if len(resultados) == 0:
+        print("⚠️ Nenhum resultado obtido — verifique a conexão com o banco de dados ou a query.")
+        return
+    try:
+        semana = int(get_semana()[0])
+    except Exception:
+        print("⚠️ Erro ao obter ou converter a semana — verifique os dados.")
+        return
+    if semana == 4:
+        update_terminado()
+        print("✅ Semana 4 detectada — dados marcados como 'terminado'.")
     mensagens = []
     for matricula, dados in resultados.items():
 
@@ -19,10 +30,10 @@ def main():
 
         if db["semana"] == 1:
             mensagens.append(mensagem_semana_1(db))
-        elif db["semana"] == 2 or db["semana"] == 3 or db["semana"] == 4:
-            mensagens.append(mensagem_semanas_2_3_4(db))
-        elif db["semana"] == 5:
-            mensagens.append(mensagem_semana_5(db))
+        elif db["semana"] == 2 or db["semana"] == 3:
+            mensagens.append(mensagem_semanas_2_3(db))
+        elif db["semana"] == 4:
+            mensagens.append(mensagem_semana_4(db))
 
     if not mensagens:
         print("⚠️ Nenhuma mensagem gerada — verifique os dados.")
