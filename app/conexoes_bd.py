@@ -145,7 +145,7 @@ QUERY_FINAL = """
         LEFT JOIN bas.relatorio3 c
             ON d.chave_externa = c.matricula
             AND c.indicador = 901
-            AND c.mes = EOMONTH(GETDATE(), -2)
+            AND c.mes = EOMONTH(GETDATE(), -1)
         LEFT JOIN #hmn h
             ON d.chave_externa = h.matricula
         LEFT JOIN #base b
