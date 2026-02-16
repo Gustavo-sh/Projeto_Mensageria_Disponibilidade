@@ -24,11 +24,15 @@ def mensagem_semanas_2_3(db):
     if db["resultado_m1_disponibilidade"] == "Sem dados":
         evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
     else:
-        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"])
+        if db["semana"] == 3:
+            evoluiu_porcentagem = to_float_percent(db["resultado_m1_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
+        else:
+            evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"])
     if evoluiu_porcentagem:
         texto = f"""
         Fala, {db["nome"].split(" ")[0]}! 🎉
-        Boa! Acredita que você evoluiu sua % de Disponibilidade em relação ao mês anterior? Parabéns pelo seu esforço! 👏
+        Boa! Acredita que você evoluiu sua % de Disponibilidade em relação ao resultado anterior? Parabéns pelo seu esforço! 👏
+        Dois meses atrás: {db["resultado_m2_disponibilidade"]}
         Mês anterior: {db["resultado_m1_disponibilidade"]}
         Mês atual: {db["resultado_m0_disponibilidade"]}
         Pra manter a subida, confere os pilares da sua disponibilidade:
@@ -43,7 +47,8 @@ def mensagem_semanas_2_3(db):
     else:
         texto = f"""
         Olá, {db["nome"].split(" ")[0]}!
-        Vi aqui que sua % de Disponibilidade não evoluiu em relação ao mês anterior. Bora ajustar a rota juntos?
+        Vi aqui que sua % de Disponibilidade não evoluiu em relação ao resultado anterior. Bora ajustar a rota juntos?
+        Dois meses atrás: {db["resultado_m2_disponibilidade"]}
         Mês anterior: {db["resultado_m1_disponibilidade"]}
         Mês atual: {db["resultado_m0_disponibilidade"]}
         Pra encontrar a alavanca mais rápida, confere os componentes:
