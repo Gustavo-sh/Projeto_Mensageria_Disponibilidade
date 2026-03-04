@@ -18,7 +18,7 @@ def mensagem_semanas_2_3(db):
     texto = None
     tipo = None
     evoluiu_porcentagem = None
-    checar_dados = checar_dados_disponibilidade(db)
+    checar_dados = checar_dados_disponibilidade(db) if db["semana"] == 2 else None
     if checar_dados is not None:
         return checar_dados
     if db["resultado_m1_disponibilidade"] == "Sem dados":
