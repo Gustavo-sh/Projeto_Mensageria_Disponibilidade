@@ -1,25 +1,24 @@
 import pyodbc
 CONNECTION_STRING = "Driver={SQL Server};Server=primno4;Database=Robbyson;Trusted_Connection=yes;"
 UPDATE_SEMANA = """
-    UPDATE dbo.historico_rn SET semana = semana + 1
+    UPDATE rlt.HomeFlowDispPublico SET semana = semana + 1
     WHERE terminado = 0;
     """
 INTOS = """
-        set nocount on;
+        SET NOCOUNT ON;
+
         SELECT
-            data_insert,
             matricula,
-            situacao,
-            semana,
-            terminado
+            semana
         INTO #base
-        FROM dbo.historico_rn (NOLOCK)
+        FROM rlt.HomeFlowDispPublico (NOLOCK)
         WHERE terminado = 0;
 
 
         SELECT DISTINCT
             matricula,
-            situacaohominum
+            situacaohominum,
+            DIRETORATENDIMENTO
         INTO #hmn
         FROM rlt.hmn (NOLOCK)
         WHERE data = CONVERT(DATE, GETDATE() - 1)
@@ -42,8 +41,6 @@ INTOS = """
                 1.0 - SUM(resultado) / NULLIF(SUM(fator), 0) AS Resultado_Disp,
                 SUM(meta) / SUM(hc) AS Meta_Disp
             FROM rlt.bussola WITH (NOLOCK)
-            LEFT JOIN #base
-                ON chave_externa = #base.matricula
             WHERE data >= DATEADD(DAY, 1, EOMONTH(GETDATE(), -4))
             AND id = 901
             AND chave_externa IN (SELECT matricula FROM #base)
@@ -131,8 +128,9 @@ QUERY_FINAL = """
             FORMAT(resultado_abs, 'P') as Resultado_ABS, 
             FORMAT(meta_abs, 'P') as Meta_ABS,
             b.semana,
-            col.nome,
-            c.faixa AS 'grupo'
+            col.nome
+            --,h.situacaohominum
+            --,DIRETORATENDIMENTO
         FROM #disp d
         LEFT JOIN #tl t
             ON t.chave_externa = d.chave_externa
@@ -142,17 +140,11 @@ QUERY_FINAL = """
             ON a.chave_externa = d.chave_externa
         LEFT JOIN #colaboradores col
             ON d.chave_externa = col.matricula
-        LEFT JOIN bas.relatorio3 c
-            ON d.chave_externa = c.matricula
-            AND c.indicador = 901
-            AND c.mes = EOMONTH(GETDATE(), -1)
         LEFT JOIN #hmn h
             ON d.chave_externa = h.matricula
         LEFT JOIN #base b
             ON d.chave_externa = b.matricula
         WHERE h.situacaohominum = 'ativo'
-        AND c.FAIXA IN (3,4);
-
     """
 
 DROPS = """
@@ -186,8 +178,7 @@ def get_resultados():
             "Resultado_ABS": i[9],
             "Meta_ABS": i[10],
             "Semana": i[11],
-            "Nome": i[12],
-            "Grupo": i[13]
+            "Nome": i[12]
         }
     for i in rows} 
 
@@ -198,7 +189,7 @@ def get_resultados():
 def get_semana():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    cur.execute("""select distinct semana from dbo.historico_rn (nolock) where terminado = 0;""")
+    cur.execute("""select distinct semana from rlt.HomeFlowDispPublico (nolock) where terminado = 0;""")
     rows = cur.fetchone()
     cur.close()
     conn.close()
@@ -207,7 +198,7 @@ def get_semana():
 def update_terminado():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    cur.execute("""update dbo.historico_rn set terminado = 1 where terminado = 0;""")
+    cur.execute("""update rlt.HomeFlowDispPublico set terminado = 1 where terminado = 0;""")
     cur.commit()
     cur.close()
     conn.close()

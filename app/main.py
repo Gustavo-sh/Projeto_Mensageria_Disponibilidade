@@ -1,3 +1,4 @@
+from datetime import datetime
 from conexoes_bd import get_resultados, get_semana, update_terminado
 from mensagens import mensagem_semana_1, mensagem_semanas_2_3, mensagem_semana_4
 from pathlib import Path
@@ -9,11 +10,13 @@ def main():
         print("⚠️ Nenhum resultado obtido — verifique a conexão com o banco de dados ou a query.")
         return
     try:
-        semana = int(get_semana()[0])
+        semana = get_semana()
+        print("Semana capturada do banco de dados:", semana)
+        num_semana = int(semana[0])
     except Exception:
         print("⚠️ Erro ao obter ou converter a semana — verifique os dados.")
         return
-    if semana == 4:
+    if num_semana == 4:
         update_terminado()
         print("✅ Semana 4 detectada — dados marcados como 'terminado'.")
     mensagens = []
@@ -22,7 +25,7 @@ def main():
         db = {"matricula": matricula, "resultado_m0_disponibilidade": dados["Resultado_M0_Disp"], "resultado_m1_disponibilidade": dados["Resultado_M1_Disp"], 
               "resultado_m2_disponibilidade": dados["Resultado_M2_Disp"],
               "resultado_tempo_logado": dados["Resultado_Tempo_Logado"], "meta_tempo_logado": dados["Meta_Tempo_Logado"], "resultado_nr17": dados["Resultado_NR17"], "meta_nr17": dados["Meta_NR17"], 
-              "resultado_abs": dados["Resultado_ABS"], "meta_abs": dados["Meta_ABS"], "semana": dados["Semana"], "nome": dados["Nome"], "grupo": dados["Grupo"]}
+              "resultado_abs": dados["Resultado_ABS"], "meta_abs": dados["Meta_ABS"], "semana": dados["Semana"], "nome": dados["Nome"]}
         
         for chave, valor in db.items():
             if valor == None:
@@ -39,7 +42,7 @@ def main():
         print("⚠️ Nenhuma mensagem gerada — verifique os dados.")
         return
     df_mensagens = pd.DataFrame(mensagens)
-    caminho_arquivo = Path.cwd() / "mensagens_geradas.xlsx"
+    caminho_arquivo = Path.cwd() / f"mensagens_robbyon_semana{num_semana}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
     df_mensagens.to_excel(caminho_arquivo, index=False)
     print(f"✅ {len(mensagens)} mensagens geradas.")
     print(f"📄 Arquivo salvo em: {caminho_arquivo}")
