@@ -1,51 +1,36 @@
-from datetime import datetime
-from conexoes_bd import get_resultados, get_semana, update_terminado
-from mensagens import mensagem_semana_1, mensagem_semanas_2_3, mensagem_semana_4
-from pathlib import Path
-import pandas as pd
+from app.conexoes_bd_ho import get_resultados_ho
+from app.conexoes_bd_presencial import get_resultados_presencial
+from app.utils import checar_semana, gerar_mensagens, gerar_exel
 
-def main():
-    resultados = get_resultados()
+def main(resultados=None, tipo=None):
+
+    if resultados is None:
+        resultados = get_resultados_ho()
+    if tipo is None:
+        tipo = "ho"
+
     if len(resultados) == 0:
-        print("⚠️ Nenhum resultado obtido — verifique a conexão com o banco de dados ou a query.")
+        print(f"⚠️ Nenhum resultado obtido — verifique {tipo}.")
+        return None
+
+    num_semana = checar_semana(tipo)
+    if num_semana is None:
         return
-    try:
-        semana = get_semana()
-        print("Semana capturada do banco de dados:", semana)
-        num_semana = int(semana[0])
-    except Exception:
-        print("⚠️ Erro ao obter ou converter a semana — verifique os dados.")
-        return
-    if num_semana == 4:
-        update_terminado()
-        print("✅ Semana 4 detectada — dados marcados como 'terminado'.")
-    mensagens = []
-    for matricula, dados in resultados.items():
-
-        db = {"matricula": matricula, "resultado_m0_disponibilidade": dados["Resultado_M0_Disp"], "resultado_m1_disponibilidade": dados["Resultado_M1_Disp"], 
-              "resultado_m2_disponibilidade": dados["Resultado_M2_Disp"],
-              "resultado_tempo_logado": dados["Resultado_Tempo_Logado"], "meta_tempo_logado": dados["Meta_Tempo_Logado"], "resultado_nr17": dados["Resultado_NR17"], "meta_nr17": dados["Meta_NR17"], 
-              "resultado_abs": dados["Resultado_ABS"], "meta_abs": dados["Meta_ABS"], "semana": dados["Semana"], "nome": dados["Nome"]}
-        
-        for chave, valor in db.items():
-            if valor == None:
-                db[chave] = "Sem dados"
-
-        if db["semana"] == 1:
-            mensagens.append(mensagem_semana_1(db))
-        elif db["semana"] == 2 or db["semana"] == 3:
-            mensagens.append(mensagem_semanas_2_3(db))
-        elif db["semana"] == 4:
-            mensagens.append(mensagem_semana_4(db))
-
+    
+    mensagens = gerar_mensagens(resultados)
     if not mensagens:
-        print("⚠️ Nenhuma mensagem gerada — verifique os dados.")
+        print(f"⚠️ Nenhuma mensagem gerada para {tipo} — verifique os dados.")
         return
-    df_mensagens = pd.DataFrame(mensagens)
-    caminho_arquivo = Path.cwd() / f"mensagens_robbyon_semana{num_semana}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
-    df_mensagens.to_excel(caminho_arquivo, index=False)
-    print(f"✅ {len(mensagens)} mensagens geradas.")
-    print(f"📄 Arquivo salvo em: {caminho_arquivo}")
+    
+    gerar_exel(mensagens, num_semana, tipo)
+
+
+def orchestrate():
+    main()
+
+    # resultados_presencial = get_resultados_presencial()
+    # main(resultados_presencial, "presencial")
+
 
 if __name__ == "__main__":
-    main()
+    orchestrate()

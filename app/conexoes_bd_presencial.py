@@ -1,7 +1,7 @@
 import pyodbc
 CONNECTION_STRING = "Driver={SQL Server};Server=primno4;Database=Robbyson;Trusted_Connection=yes;"
 UPDATE_SEMANA = """
-    UPDATE rlt.HomeFlowDispPublico SET semana = semana + 1
+    UPDATE rlt.RobbyOnPresencial SET semana = semana + 1
     WHERE terminado = 0;
     """
 INTOS = """
@@ -11,7 +11,7 @@ INTOS = """
             matricula,
             semana
         INTO #base
-        FROM rlt.HomeFlowDispPublico (NOLOCK)
+        FROM rlt.RobbyOnPresencial (NOLOCK)
         WHERE terminado = 0;
 
 
@@ -156,7 +156,7 @@ DROPS = """
         DROP TABLE #hmn;
         DROP TABLE #colaboradores;
     """
-def get_resultados():
+def get_resultados_presencial():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
     cur.execute(UPDATE_SEMANA)
@@ -186,19 +186,19 @@ def get_resultados():
     conn.close()
     return resultados
 
-def get_semana():
+def get_semana_presencial():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    cur.execute("""select distinct semana from rlt.HomeFlowDispPublico (nolock) where terminado = 0;""")
+    cur.execute("""select distinct semana from rlt.RobbyOnPresencial (nolock) where terminado = 0;""")
     rows = cur.fetchone()
     cur.close()
     conn.close()
     return rows
 
-def update_terminado():
+def update_terminado_presencial():
     conn = pyodbc.connect(CONNECTION_STRING, timeout=20)
     cur = conn.cursor()
-    cur.execute("""update rlt.HomeFlowDispPublico set terminado = 1 where terminado = 0;""")
+    cur.execute("""update rlt.RobbyOnPresencial set terminado = 1 where terminado = 0;""")
     cur.commit()
     cur.close()
     conn.close()
