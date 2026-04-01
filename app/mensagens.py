@@ -71,27 +71,27 @@ def mensagem_semanas_2_3(db):
 def mensagem_semana_4(db):
     texto = None
     tipo = None
-    evoluiu_grupo = True if to_float_percent(db["resultado_m1_disponibilidade"]) >= 94.0 else False # mudar aqui para m0 e descomentar o codigo abaixo para ciclo de abril em diante
+    evoluiu_grupo = True if to_float_percent(db["resultado_m0_disponibilidade"]) >= 94.0 else False # mudar aqui para m0, descomentar o codigo abaixo e mudar as mensagens para ciclo de abril em diante 
     evoluiu_porcentagem = None
-    # checar_dados = checar_dados_disponibilidade(db)
+    checar_dados = checar_dados_disponibilidade(db)
 
-    # if checar_dados is not None:
-    #     return checar_dados
-    # if db["resultado_m1_disponibilidade"] == "Sem dados":
-    #     evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
-    # else:
-    #     evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"])
+    if checar_dados is not None:
+        return checar_dados
+    if db["resultado_m1_disponibilidade"] == "Sem dados":
+        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
+    else:
+        evoluiu_porcentagem = to_float_percent(db["resultado_m0_disponibilidade"]) > to_float_percent(db["resultado_m1_disponibilidade"])
 
-    if db["resultado_m1_disponibilidade"] == "Sem dados" or db["resultado_m2_disponibilidade"] == "Sem dados":
-        return {"Matricula": db["matricula"], "tipo": "Sem dados", "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior ou Dois Meses Atras."}
-    evoluiu_porcentagem = to_float_percent(db["resultado_m1_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
+    # if db["resultado_m1_disponibilidade"] == "Sem dados" or db["resultado_m2_disponibilidade"] == "Sem dados":
+    #     return {"Matricula": db["matricula"], "tipo": "Sem dados", "semana":db["semana"], "Mensagem": "Sem dados disponibilidade Mês Anterior ou Dois Meses Atras."}
+    # evoluiu_porcentagem = to_float_percent(db["resultado_m1_disponibilidade"]) > to_float_percent(db["resultado_m2_disponibilidade"])
 
     if evoluiu_grupo and evoluiu_porcentagem:
         texto = f"""
         Ei, {db["nome"].split(" ")[0]}! 🎉
         Encerramos o ciclo do Robby ON e seu resultado melhorou na % de Disponibilidade, e melhor: você virou de grupo!! 🏆
-        M-2: {db["resultado_m2_disponibilidade"]}
         M-1: {db["resultado_m1_disponibilidade"]}
+        M-0: {db["resultado_m0_disponibilidade"]}
         Isso mostra que seu esforço teve impacto real.
         Neste momento, você não precisa seguir no próximo ciclo de acompanhamento 🙌
         Seu desafio agora é simples: manter o padrão que te trouxe até aqui 💻
@@ -103,8 +103,8 @@ def mensagem_semana_4(db):
         texto = f"""
         Fala, {db["nome"].split(" ")[0]}! 🙌
         Fechamos o ciclo do Robby ON e eu vi sua evolução na % de Disponibilidade — parabéns pela dedicação! 👏
-        M-2: {db["resultado_m2_disponibilidade"]}
         M-1: {db["resultado_m1_disponibilidade"]}
+        M-0: {db["resultado_m0_disponibilidade"]}
         Mesmo com a melhora, você ainda aparece em G3/G4 por enquanto. E isso não é rótulo, é só o ponto de partida do próximo ciclo, tá? Vamos seguir juntos até você virar de grupo 💪
         Conta comigo,
         Robby
@@ -114,8 +114,8 @@ def mensagem_semana_4(db):
         texto = f"""
         Olá, {db["nome"].split(" ")[0]}!
         Encerramos o Robby ON e identificamos que, neste ciclo, seu resultado de % de Disponibilidade não evoluiu em relação ao mês anterior.
-        Resultado (mês M-2): {db["resultado_m2_disponibilidade"]} Disponibilidade
         Resultado (mês M-1): {db["resultado_m1_disponibilidade"]} Disponibilidade
+        Resultado (mês M-0): {db["resultado_m0_disponibilidade"]} Disponibilidade
         Sei que desafios acontecem 💭, mas é importante reforçar que a evolução nesse indicador é essencial para o seu crescimento dentro da operação.
         Por isso, você seguirá com a gente em um novo ciclo de acompanhamento até a sua melhoria.
         Conto com o seu comprometimento para transformar esse resultado 💪. Estamos juntos nesse propósito ✨. Abraços, Robby!
